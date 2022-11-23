@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "401073963779",
+    "firebase_url": "https://android-expense-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "android-expense",
+    "storage_bucket": "android-expense.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:401073963779:android:b62d53dd0b66e3e7b39f36",
+        "android_client_info": {
+          "package_name": "com.example.androidexpense"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "401073963779-u6soadpjbkgreb87v827si9vsk685679.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0A9nkoEF2XbQ6bpFcCgyJ0L0kZwrRCWw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "401073963779-u6soadpjbkgreb87v827si9vsk685679.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
