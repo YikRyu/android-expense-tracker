@@ -7,4 +7,25 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!--Custom UI Colors-->
+    <color name="dark_blue">#333399</color>
+    <color name="dark_blue_shadow">#1D1D77</color>
+    <color name="darkest_blue">#090928</color>
+    <color name="light_blue">#9DCEFF</color>
+    <color name="light_blue_shadow">#5A83AD</color>
+    <color name="light_black">#1d1d1d</color>
+
+    <!--Pie chart category colors-->
+    <color name="income">#4CAF50</color>
+    <color name="food">#FF9800</color>
+    <color name="medical">#3F51B5</color>
+    <color name="entertainment">#FFEB3B</color>
+    <color name="education">#2196F3</color>
+    <color name="household">#96532F</color>
+    <color name="utilities">#610091</color>
+    <color name="transportation">#00D9C5</color>
+    <color name="clothing">#D200C8</color>
+    <color name="gifts">#D40027</color>
+    <color name="grey">#808080</color>
 </resources>

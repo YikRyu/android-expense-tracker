@@ -1,8 +1,51 @@
 <resources>
     <string name="app_name">Expense Tracker App</string>
-    <!--EditText String-->
-    <string name="crime_title_hint">Enter a title for the crime</string>
-    <string name="crime_title_label">Title</string>
-    <string name="crime_details_label">Details</string>
-    <string name="crime_solved_label">Solved</string>
+
+    <!--Toolbar and option Title-->
+    <string name="toolbar_title">TOOLBAR NAME</string>
+    <string name="clear_all">Clear All</string>
+    <string name="toolbar_home">HOME</string>
+    <string name="toolbar_list">EXPENSE LIST</string>
+    <string name="toolbar_add_new">ADD NEW EXPENSE/INCOME</string>
+    <string name="toolbar_trashcan">TRASHCAN</string>
+    <string name="toolbar_logout">LOGOUT</string>
+
+    <!--For Nav Bar Toggle-->
+    <string name="navigation_drawer_open">Open Navigation Drawer</string>
+    <string name="navigation_drawer_close">Close Navigation Drawer</string>
+
+    <!--Edit Text-->
+
+    <!--Text View-->
+    <!--Login and Register-->
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="loginRegis_text">Keep Track Of Your Spending</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="have_account">Already have an account? Login here</string>
+    <string name="no_account">Don\'t have an account? Create here</string>
+    <!--Home-->
+    <string name="home_instruction">Filter expense by Year and Month:</string>
+    <string name="home_start">Start: </string>
+    <string name="home_end">End: </string>
+    <!--Trashcan-->
+    <string name="trashcan_tips">Swipe right to delete permanently, swipe left to restore</string>
+
+
+    <!--Expense Categories-->
+    <string-array name="expense_categories">
+        <item name="income">Income</item>
+        <item name="food">Food</item>
+        <item name="medical">Medical/Healthcare</item>
+        <item name="entertainment">Entertainment</item>
+        <item name="education">Education</item>
+        <item name="household">Household Supplies</item>
+        <item name="utilities">Utilities</item>
+        <item name="transportation">Transportation</item>
+        <item name="clothing">Clothing</item>
+        <item name="gifts">Gifts</item>
+    </string-array>
+
 </resources>

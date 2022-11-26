@@ -3,12 +3,31 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/drawable/ic_menu.xml" value="0.1" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/drawable/ic_option.xml" value="0.1" />
         <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout-land/fragment_crime.xml" value="0.3171875" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout/activity_add_expense.xml" value="0.3385416666666667" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout/activity_edit_expense.xml" value="0.3385416666666667" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout/activity_expense_list.xml" value="0.3385416666666667" />
         <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout/activity_fragment.xml" value="0.3385416666666667" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout/activity_home.xml" value="0.33" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout/activity_login.xml" value="0.3385416666666667" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout/activity_main.xml" value="0.3385416666666667" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout/activity_register.xml" value="0.3385416666666667" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout/activity_trashcan.xml" value="0.3385416666666667" />
         <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout/fragment_crime.xml" value="0.3385416666666667" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout/nav_header.xml" value="0.27692307692307694" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout/toolbar.xml" value="0.22" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/menu/drawer_menu.xml" value="0.3375" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/menu/option.xml" value="0.3375" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.1" />
       </map>
     </option>
   </component>
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
