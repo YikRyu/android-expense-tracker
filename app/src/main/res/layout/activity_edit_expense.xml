@@ -6,8 +6,7 @@
     android:layout_height="match_parent"
     android:id="@+id/drawer_layout"
     android:fitsSystemWindows="true"
-    tools:context=".Home"
-    tools:openDrawer="start">
+    tools:context=".EditExpense">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -24,7 +23,131 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <TextView
+            android:id="@+id/tv_amount_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/amount"
+            android:textColor="@color/light_black"
+            android:textSize="16dp"
+            android:layout_marginTop="20dp"
+            android:padding="10dp"
+            android:textAlignment="center"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
 
+        <EditText
+            android:id="@+id/et_amount_edit"
+            android:layout_width="125dp"
+            android:layout_height="wrap_content"
+            android:hint="Amount"
+            android:textColor="@color/grey"
+            android:textAlignment="center"
+            app:layout_constraintTop_toBottomOf="@+id/tv_amount_edit"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:padding="7dp"/>
+
+        <TextView
+            android:id="@+id/tv_type_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/type"
+            android:textColor="@color/light_black"
+            android:textSize="16dp"
+            android:padding="10dp"
+            android:layout_marginTop="20dp"
+            android:textAlignment="center"
+            app:layout_constraintTop_toBottomOf="@+id/et_amount_edit"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <Spinner
+            android:id="@+id/sp_typeData_edit"
+            android:layout_width="175dp"
+            android:layout_height="40dp"
+            android:textColor="@color/darkest_blue"
+            android:textAlignment="center"
+            app:layout_constraintTop_toBottomOf="@+id/tv_type_edit"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:padding="7dp" />
+
+        <TextView
+            android:id="@+id/tv_category_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/category"
+            android:textColor="@color/light_black"
+            android:textSize="16dp"
+            android:padding="10dp"
+            android:layout_marginTop="20dp"
+            android:textAlignment="center"
+            app:layout_constraintTop_toBottomOf="@+id/sp_typeData_edit"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <Spinner
+            android:id="@+id/sp_categoryData_edit"
+            android:layout_width="175dp"
+            android:layout_height="40dp"
+            android:textColor="@color/darkest_blue"
+            android:textAlignment="center"
+            app:layout_constraintTop_toBottomOf="@+id/tv_category_edit"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:padding="7dp"/>
+
+        <TextView
+            android:id="@+id/tv_date_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/date"
+            android:textColor="@color/light_black"
+            android:textSize="16dp"
+            android:padding="10dp"
+            android:layout_marginTop="20dp"
+            android:textAlignment="center"
+            app:layout_constraintTop_toBottomOf="@+id/sp_categoryData_edit"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/tv_datepicker_edit"
+            android:layout_width="125dp"
+            android:layout_height="wrap_content"
+            android:text="Expense Date"
+            android:textColor="@color/light_black"
+            android:textAlignment="center"
+            app:layout_constraintTop_toBottomOf="@+id/tv_date_edit"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:padding="7dp"/>
+
+        <ImageView
+            android:id="@+id/iv_calendar_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_calendar"
+            android:paddingTop="5dp"
+            app:layout_constraintStart_toEndOf="@id/tv_datepicker_edit"
+            app:layout_constraintTop_toBottomOf="@id/tv_date_edit"/>
+
+        <Button
+            android:id="@+id/btn_edit"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:textSize="16dp"
+            android:text="EDIT"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:backgroundTint="@color/dark_blue"
+            android:textColor="@color/white"
+            app:layout_constraintTop_toBottomOf="@+id/iv_calendar_edit"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:onClick="edit_onClick"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

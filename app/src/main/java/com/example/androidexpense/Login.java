@@ -49,7 +49,6 @@ public class Login extends AppCompatActivity {
                 String email = mEmail.getText().toString().trim();
                 String password = mPassword.getText().toString().trim();
 
-
                 if(TextUtils.isEmpty(email)){
                     mEmail.setError("Email is required.");
                     mProgressBar.setVisibility(View.GONE);
@@ -94,7 +93,7 @@ public class Login extends AppCompatActivity {
 
     }
 
-    @Override
+    /*@Override
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update user data display accordingly
@@ -104,5 +103,5 @@ public class Login extends AppCompatActivity {
             startActivity(new Intent(getApplicationContext(),Home.class));
             currentUser.reload();
         }
-    }
+    }*/
 }

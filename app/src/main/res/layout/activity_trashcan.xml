@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:id="@+id/drawer_layout"
     android:fitsSystemWindows="true"
-    tools:context=".Home"
+    tools:context=".Trashcan"
     tools:openDrawer="start">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -31,7 +31,8 @@
             android:text="@string/trashcan_tips"
             android:textColor="@color/light_black"
             android:textSize="16dp"
-            android:layout_margin="16dp"
+            android:padding="16dp"
+            android:justificationMode="inter_word"
             app:layout_constraintTop_toBottomOf="@+id/toolbar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"/>

@@ -3,19 +3,25 @@ package com.example.androidexpense;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.androidexpense.databinding.ActivityTrashcanBinding;
+import com.example.androidexpense.database.Expenses;
+import com.example.androidexpense.database.ExpensesDatabase;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -25,41 +31,55 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Collections;
+import java.util.List;
+
 
 public class Trashcan extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
-    //variable declarations
-    private ActivityTrashcanBinding mActivityTrashcanBinding;
-    private FirebaseAuth mFirebaseAuth;
-
     //request codes
     private final static int REQUEST_ADD = 10;
 
-    //firebase instances
-    FirebaseDatabase rootNode;
-    DatabaseReference mDatabaseReference;
+    //variables
+    String userID;
+
+    //xml bindings
+    private DrawerLayout mDrawerLayout;
+    private TrashcanAdapter mTrashcanAdapter;
+    private List<Expenses> mExpensesList;
+    private RecyclerView mRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        setContentView(R.layout.activity_trashcan);
 
-        //bind view with binding
-        mActivityTrashcanBinding = ActivityTrashcanBinding.inflate(getLayoutInflater()); //home binding
-        setContentView(mActivityTrashcanBinding .getRoot());
+        //bind xml views with their id
+        Toolbar mToolbar = findViewById(R.id.toolbar);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+        NavigationView mNavigationView = findViewById(R.id.nav_view);
+        mRecyclerView = findViewById(R.id.rv_trashcan);
+
+        //room database
+        ExpensesDatabase expenseDB = ExpensesDatabase.getInstance(this);
+
+        //refer user ID
+        FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
+        userID = mUser.getUid(); //grabbing uid of current logged in user
+        DatabaseReference mUserInfoDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(userID); //child node to refer from
+
+        //navigation options selection listener
+        mNavigationView.setNavigationItemSelectedListener(this); //function is somewhere else
 
         //toolbar related
-        mActivityTrashcanBinding .toolbar.setTitle(R.string.toolbar_home); //change title of toolbar
-        setSupportActionBar(mActivityTrashcanBinding .toolbar);
+        mToolbar.setTitle(R.string.toolbar_trashcan); //change title of toolbar
+        setSupportActionBar(mToolbar);
 
         //for the hamburger icon to rotate
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mActivityTrashcanBinding .drawerLayout, mActivityTrashcanBinding .toolbar,
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        mActivityTrashcanBinding .drawerLayout.addDrawerListener(toggle);
+        mDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        //getting logged in user info
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser mUser = mFirebaseAuth.getCurrentUser();
         //if user logged in
         if(mUser == null) {
             //appear dialog if not logged in
@@ -77,17 +97,15 @@ public class Trashcan extends AppCompatActivity implements NavigationView.OnNavi
             startActivity(new Intent(getApplicationContext(), Login.class));
             finish();
         }
-        String UID = mUser.getUid(); //grabbing uid of user
-        DatabaseReference mUserInfoDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(UID); //child node to refer from
-        //getting xml id reference of user email
-        View headerContainer = mActivityTrashcanBinding .navView.getHeaderView(0); // returns the container layout from navigation drawer header layout file
-        TextView userEmailTV = (TextView) headerContainer.findViewById(R.id.user_email); //fetch reference id of email
+
+
 
         //displaying user email in the nav header
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String userEmail = snapshot.child("Email").getValue().toString(); //grabbing email from database
+                String userEmail = snapshot.child("email").getValue().toString(); //grabbing email from database
+                TextView userEmailTV = findViewById(R.id.user_email); //fetch reference id of user email in header xml
                 userEmailTV.setText(userEmail); //change the email
             }
 
@@ -96,10 +114,21 @@ public class Trashcan extends AppCompatActivity implements NavigationView.OnNavi
                 Toast.makeText(Trashcan.this, "Something went wrong while trying to fetch user email...", Toast.LENGTH_SHORT).show();
             }
         };
+        mUserInfoDatabase.addListenerForSingleValueEvent(valueEventListener); //display
 
-        //calling firebase instance root
-        rootNode = FirebaseDatabase.getInstance();
-        mDatabaseReference = rootNode.getReference("");
+        //display list of trashed expenses with recycler view
+        List<Expenses> expensesList = expenseDB.getExpensesDao().getTrashed(userID);
+        mTrashcanAdapter = new TrashcanAdapter(this, expensesList);
+        mRecyclerView.setAdapter(mTrashcanAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        updateUI();
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateUI(); //call function to update the list after going back to this fragment from crime fragment
     }
 
     //navigation item selected
@@ -111,16 +140,15 @@ public class Trashcan extends AppCompatActivity implements NavigationView.OnNavi
                 startActivity(intentHome);
                 break;
             case R.id.menu_expense_list:
-                Intent intentExpense = new Intent(this, ExpenseList.class);
+                Intent intentExpense = new Intent(getApplicationContext(), ExpenseList.class);
                 startActivity(intentExpense);
                 break;
             case R.id.menu_add_new:
-                Intent intent = new Intent(this, AddExpense.class);
-                startActivityForResult(intent, REQUEST_ADD);
+                Intent intentAddExpense = new Intent(getApplicationContext(), AddExpense.class);
+                startActivityForResult(intentAddExpense, REQUEST_ADD);
                 break;
             case R.id.menu_trashcan:
-                Intent intentTrashcan = new Intent(this, Trashcan.class);
-                startActivity(intentTrashcan);
+                mDrawerLayout.closeDrawer(GravityCompat.START);
                 break;
             case R.id.menu_logout:
                 //appear dialog to ask if user sure to logout
@@ -148,11 +176,11 @@ public class Trashcan extends AppCompatActivity implements NavigationView.OnNavi
 
     @Override
     public void onBackPressed() {
-        if(mActivityTrashcanBinding.drawerLayout.isDrawerOpen(GravityCompat.START)){ //will only execute if navbar is opening
-            mActivityTrashcanBinding.drawerLayout.closeDrawer(GravityCompat.START); //close the navigation if pressed back
+        if(mDrawerLayout.isDrawerOpen(GravityCompat.START)){ //will only execute if navbar is opening
+            mDrawerLayout.closeDrawer(GravityCompat.START); //close the navigation if pressed back
         }
         else {
-            super.onBackPressed(); //close the activity instead
+            super.onBackPressed();
         }
     }
 
@@ -165,9 +193,82 @@ public class Trashcan extends AppCompatActivity implements NavigationView.OnNavi
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.clear_all){
-            //function
+            androidx.appcompat.app.AlertDialog.Builder alert = new androidx.appcompat.app.AlertDialog.Builder(Trashcan.this);
+            alert.setTitle("Delete Permanently");
+            alert.setMessage("Are you sure you want to delete all the expenses in trashcan permanently?");
+            alert.setNegativeButton(
+                    "No",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    }
+            );
+            alert.setPositiveButton(
+                    "Yes",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ExpensesDatabase expenseDB = ExpensesDatabase.getInstance(Trashcan.this);
+                            List<Expenses> removeTrashed= expenseDB.getExpensesDao().getTrashed(userID);
+                            expenseDB.getExpensesDao().deleteAllTrashed(userID);
+                            Toast.makeText(Trashcan.this, "All trashed items yeeted to oblivion.", Toast.LENGTH_SHORT).show();
+                            updateUI();
+                        }
+                    }
+            );
+            alert.show();
         }
         return true;
     }
 
+    private void updateUI(){
+        ExpensesDatabase expenseDB = ExpensesDatabase.getInstance(Trashcan.this);
+        mExpensesList = expenseDB.getExpensesDao().getNotTrashed(userID);
+
+        if(mTrashcanAdapter == null){
+            mTrashcanAdapter = new TrashcanAdapter(this, mExpensesList);
+            mRecyclerView.setAdapter(mTrashcanAdapter);
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        }
+        else{
+            mRecyclerView.getAdapter().notifyDataSetChanged();
+        }
+
+        //item touch helper
+        ItemTouchHelper helper = new ItemTouchHelper((new ItemTouchHelper.SimpleCallback(
+                0, //drag
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) { //swipe right
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                //no moving
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                Expenses expenses = mExpensesList.get(viewHolder.getAdapterPosition());
+
+                if (direction == 4) {
+                    expenseDB.getExpensesDao().updateNotTrashed(userID, expenses.getExpenseID());
+
+                    //remove it from list
+                    mExpensesList.remove(viewHolder.getAdapterPosition());
+                    Toast.makeText(Trashcan.this, "Item restored.", Toast.LENGTH_SHORT).show();
+                    mTrashcanAdapter.notifyItemRemoved(viewHolder.getAdapterPosition()); //notify remove
+                }
+                else{
+                    expenseDB.getExpensesDao().delete(expenses);
+
+                    //remove it from list
+                    mExpensesList.remove(viewHolder.getAdapterPosition());
+                    Toast.makeText(Trashcan.this, "Item yeeted to oblivion.", Toast.LENGTH_SHORT).show();
+                    mTrashcanAdapter.notifyItemRemoved(viewHolder.getAdapterPosition()); //notify remove
+                }
+            }
+        }));
+
+        helper.attachToRecyclerView(mRecyclerView);
+    }
 }

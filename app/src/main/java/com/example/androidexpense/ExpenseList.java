@@ -1,22 +1,27 @@
 package com.example.androidexpense;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.example.androidexpense.databinding.ActivityExpenseListBinding;
+import com.example.androidexpense.database.Expenses;
+import com.example.androidexpense.database.ExpensesDatabase;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -26,41 +31,37 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Collections;
+import java.util.List;
+
 
 public class ExpenseList extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
-    //variable declarations
-    private ActivityExpenseListBinding mActivityExpenseListBinding;
-    private FirebaseAuth mFirebaseAuth;
-
     //request codes
     private final static int REQUEST_ADD = 10;
+    private final static int REQUEST_EDIT = 20;
 
-    //firebase instances
-    FirebaseDatabase rootNode;
-    DatabaseReference mDatabaseReference;
+    //variables
+    String userID;
+
+    //xml bindings
+    private DrawerLayout mDrawerLayout;
+    private ExpenseAdapter mExpenseAdapter;
+    private List<Expenses> mExpensesList;
+    private RecyclerView mRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        setContentView(R.layout.activity_expense_list);
 
-        //bind view with binding
-        mActivityExpenseListBinding = ActivityExpenseListBinding.inflate(getLayoutInflater()); //home binding
-        setContentView(mActivityExpenseListBinding .getRoot());
+        //room database
+        ExpensesDatabase expenseDB = ExpensesDatabase.getInstance(this);
 
-        //toolbar related
-        mActivityExpenseListBinding .toolbar.setTitle(R.string.toolbar_home); //change title of toolbar
-        setSupportActionBar(mActivityExpenseListBinding .toolbar);
+        //refer user ID
+        FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
+        userID = mUser.getUid(); //grabbing uid of current logged in user
+        DatabaseReference mUserInfoDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(userID); //child node to refer from
 
-        //for the hamburger icon to rotate
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mActivityExpenseListBinding .drawerLayout, mActivityExpenseListBinding .toolbar,
-                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        mActivityExpenseListBinding .drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
-
-        //getting logged in user info
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser mUser = mFirebaseAuth.getCurrentUser();
         //if user logged in
         if(mUser == null) {
             //appear dialog if not logged in
@@ -78,17 +79,33 @@ public class ExpenseList extends AppCompatActivity implements NavigationView.OnN
             startActivity(new Intent(getApplicationContext(), Login.class));
             finish();
         }
-        String UID = mUser.getUid(); //grabbing uid of user
-        DatabaseReference mUserInfoDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(UID); //child node to refer from
-        //getting xml id reference of user email
-        View headerContainer = mActivityExpenseListBinding .navView.getHeaderView(0); // returns the container layout from navigation drawer header layout file
-        TextView userEmailTV = (TextView) headerContainer.findViewById(R.id.user_email); //fetch reference id of email
+
+        //bind xml views with their id
+        Toolbar mToolbar = findViewById(R.id.toolbar);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+        NavigationView mNavigationView = findViewById(R.id.nav_view);
+        mRecyclerView = findViewById(R.id.rv_expense_list);
+
+        //navigation options selection listener
+        mNavigationView.setNavigationItemSelectedListener(this); //function is somewhere else
+
+        //toolbar related
+        mToolbar.setTitle(R.string.toolbar_list); //change title of toolbar
+        setSupportActionBar(mToolbar);
+
+        //for the hamburger icon to rotate
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        mDrawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
 
         //displaying user email in the nav header
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String userEmail = snapshot.child("Email").getValue().toString(); //grabbing email from database
+                String userEmail = snapshot.child("email").getValue().toString(); //grabbing email from database
+                TextView userEmailTV = findViewById(R.id.user_email); //fetch reference id of user email in header xml
                 userEmailTV.setText(userEmail); //change the email
             }
 
@@ -99,9 +116,19 @@ public class ExpenseList extends AppCompatActivity implements NavigationView.OnN
         };
         mUserInfoDatabase.addListenerForSingleValueEvent(valueEventListener); //display
 
-        //calling firebase instance root
-        rootNode = FirebaseDatabase.getInstance();
-        mDatabaseReference = rootNode.getReference("");
+        //display list of expenses with recycler view
+        List<Expenses> expensesList = expenseDB.getExpensesDao().getNotTrashed(userID);
+        mExpenseAdapter = new ExpenseAdapter(this, expensesList);
+        mRecyclerView.setAdapter(mExpenseAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        updateUI();
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateUI(); //call function to update the list after going back to this fragment from crime fragment
     }
 
     //navigation item selected
@@ -109,19 +136,18 @@ public class ExpenseList extends AppCompatActivity implements NavigationView.OnN
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case R.id.menu_home:
-                Intent intentHome = new Intent(this, Home.class);
+                Intent intentHome = new Intent(getApplicationContext(), Home.class);
                 startActivity(intentHome);
                 break;
             case R.id.menu_expense_list:
-                Intent intentExpense = new Intent(this, ExpenseList.class);
-                startActivity(intentExpense);
+                mDrawerLayout.closeDrawer(GravityCompat.START);
                 break;
             case R.id.menu_add_new:
-                Intent intent = new Intent(this, AddExpense.class);
-                startActivityForResult(intent, REQUEST_ADD);
+                Intent intentAddExpense = new Intent(getApplicationContext(), AddExpense.class);
+                startActivityForResult(intentAddExpense, REQUEST_ADD);
                 break;
             case R.id.menu_trashcan:
-                Intent intentTrashcan = new Intent(this, Trashcan.class);
+                Intent intentTrashcan = new Intent(getApplicationContext(), Trashcan.class);
                 startActivity(intentTrashcan);
                 break;
             case R.id.menu_logout:
@@ -150,26 +176,68 @@ public class ExpenseList extends AppCompatActivity implements NavigationView.OnN
 
     @Override
     public void onBackPressed() {
-        if(mActivityExpenseListBinding.drawerLayout.isDrawerOpen(GravityCompat.START)){ //will only execute if navbar is opening
-            mActivityExpenseListBinding.drawerLayout.closeDrawer(GravityCompat.START); //close the navigation if pressed back
+        if(mDrawerLayout.isDrawerOpen(GravityCompat.START)){ //will only execute if navbar is opening
+            mDrawerLayout.closeDrawer(GravityCompat.START); //close the navigation if pressed back
         }
         else {
-            super.onBackPressed(); //close the activity instead
+            super.onBackPressed();
         }
     }
 
-    //for options
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.option, menu);
-        return true;
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.clear_all){
-            //function
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == REQUEST_ADD || requestCode == REQUEST_EDIT){
+            if(resultCode == RESULT_OK){
+                updateUI();
+            }
         }
-        return true;
+
     }
 
+    //function for UI updating
+    private void updateUI(){
+        ExpensesDatabase expenseDB = ExpensesDatabase.getInstance(ExpenseList.this);
+        mExpensesList = expenseDB.getExpensesDao().getNotTrashed(userID);
+
+        if(mExpenseAdapter == null){
+            mExpenseAdapter = new ExpenseAdapter(this, mExpensesList);
+            mRecyclerView.setAdapter(mExpenseAdapter);
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        }
+        else{
+            mRecyclerView.getAdapter().notifyDataSetChanged();
+        }
+
+        //item touch helper
+        ItemTouchHelper helper = new ItemTouchHelper((new ItemTouchHelper.SimpleCallback(
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT | ItemTouchHelper.UP | ItemTouchHelper.DOWN, //drag
+                ItemTouchHelper.RIGHT) { //swipe left and right
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView,
+                                  @NonNull RecyclerView.ViewHolder viewHolder,
+                                  @NonNull RecyclerView.ViewHolder target) {
+                int from = viewHolder.getAdapterPosition();
+                int to = viewHolder.getAdapterPosition();
+                Collections.swap(mExpensesList, from, to);
+                mExpenseAdapter.notifyItemMoved(from, to);
+                return true;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                Expenses expenses = mExpensesList.get(viewHolder.getAdapterPosition());
+                expenseDB.getExpensesDao().updateTrashed(userID ,expenses.getExpenseID());
+
+                //move to trashcan
+                mExpensesList.remove(viewHolder.getAdapterPosition());
+                Toast.makeText(ExpenseList.this, "Expense moved to trash can.", Toast.LENGTH_SHORT).show();
+                mExpenseAdapter.notifyItemRemoved(viewHolder.getAdapterPosition()); //notify
+
+            }
+        }));
+
+        helper.attachToRecyclerView(mRecyclerView);
+    }
 }

@@ -3,19 +3,29 @@ package com.example.androidexpense;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.androidexpense.databinding.ActivityEditExpenseBinding;
+import com.example.androidexpense.database.Expenses;
+import com.example.androidexpense.database.ExpensesDatabase;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -25,41 +35,68 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Calendar;
+
 
 public class EditExpense extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
-    //variable declarations
-    private ActivityEditExpenseBinding mActivityEditExpenseBinding;
-    private FirebaseAuth mFirebaseAuth;
-
     //request codes
     private final static int REQUEST_ADD = 10;
+    public final static int REQUEST_EDIT = 20;
+    public final static int EDIT_SUCCESS = 200;
+    public final static int EDIT_FAIL = 201;
 
-    //firebase instances
-    FirebaseDatabase rootNode;
-    DatabaseReference mDatabaseReference;
+    //variables
+    double amount;
+    String type;
+    String category;
+    String selectedDate;
+    private int expenseId;
+    private boolean setType = false;
+    private boolean setCategory = false;
+    private boolean setDate = false;
+
+    //xml bindings
+    private DrawerLayout mDrawerLayout;
+    private EditText mAmount;
+    private Spinner mType;
+    private Spinner mCategory;
+    private TextView mDate;
+    private Button mEdit;
+
+    //getting logged in user info
+    FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
+    String userID = mUser.getUid(); //grabbing uid of current logged in user
+    DatabaseReference mUserInfoDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(userID); //child node to refer from
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        setContentView(R.layout.activity_edit_expense);
 
-        //bind view with binding
-        mActivityEditExpenseBinding = ActivityEditExpenseBinding.inflate(getLayoutInflater()); //home binding
-        setContentView(mActivityEditExpenseBinding .getRoot());
+        //bind xml views with their id
+        Toolbar mToolbar = findViewById(R.id.toolbar);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+        NavigationView mNavigationView = findViewById(R.id.nav_view);
+        mAmount = findViewById(R.id.et_amount_edit);
+        mType = findViewById(R.id.sp_typeData_edit);
+        mCategory = findViewById(R.id.sp_categoryData_edit);
+        mDate = findViewById(R.id.tv_datepicker_edit);
+        mEdit = findViewById(R.id.btn_edit);
+
+        //navigation options selection listener
+        mNavigationView.setNavigationItemSelectedListener(this); //function is somewhere else
 
         //toolbar related
-        mActivityEditExpenseBinding .toolbar.setTitle(R.string.toolbar_home); //change title of toolbar
-        setSupportActionBar(mActivityEditExpenseBinding .toolbar);
+        mToolbar.setTitle(R.string.toolbar_edit); //change title of toolbar
+        setSupportActionBar(mToolbar);
 
         //for the hamburger icon to rotate
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mActivityEditExpenseBinding .drawerLayout, mActivityEditExpenseBinding .toolbar,
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        mActivityEditExpenseBinding .drawerLayout.addDrawerListener(toggle);
+        mDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        //getting logged in user info
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser mUser = mFirebaseAuth.getCurrentUser();
+
         //if user logged in
         if(mUser == null) {
             //appear dialog if not logged in
@@ -77,17 +114,15 @@ public class EditExpense extends AppCompatActivity implements NavigationView.OnN
             startActivity(new Intent(getApplicationContext(), Login.class));
             finish();
         }
-        String UID = mUser.getUid(); //grabbing uid of user
-        DatabaseReference mUserInfoDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(UID); //child node to refer from
-        //getting xml id reference of user email
-        View headerContainer = mActivityEditExpenseBinding .navView.getHeaderView(0); // returns the container layout from navigation drawer header layout file
-        TextView userEmailTV = (TextView) headerContainer.findViewById(R.id.user_email); //fetch reference id of email
+
+
 
         //displaying user email in the nav header
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String userEmail = snapshot.child("Email").getValue().toString(); //grabbing email from database
+                String userEmail = snapshot.child("email").getValue().toString(); //grabbing email from database
+                TextView userEmailTV = findViewById(R.id.user_email); //fetch reference id of user email in header xml
                 userEmailTV.setText(userEmail); //change the email
             }
 
@@ -98,9 +133,106 @@ public class EditExpense extends AppCompatActivity implements NavigationView.OnN
         };
         mUserInfoDatabase.addListenerForSingleValueEvent(valueEventListener); //display
 
-        //calling firebase instance root
-        rootNode = FirebaseDatabase.getInstance();
-        mDatabaseReference = rootNode.getReference("");
+
+
+
+
+        //FUNCTIONS FOR EDIT EXPENSE
+        //Spinner adapter type
+        ArrayAdapter<CharSequence> typeSpinner = ArrayAdapter.createFromResource(
+                EditExpense.this,
+                R.array.expense_type,
+                android.R.layout.simple_spinner_item
+        );
+
+        typeSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mType.setAdapter(typeSpinner);
+        mType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                type = mType.getSelectedItem().toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                //do nothing
+            }
+        });
+
+        //spinner adapter category
+        ArrayAdapter<CharSequence> categorySpinner = ArrayAdapter.createFromResource(
+                EditExpense.this,
+                R.array.expense_categories,
+                android.R.layout.simple_spinner_item
+        );
+
+        //spinner adapter category
+        categorySpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mCategory.setAdapter(categorySpinner);
+        mCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                category = mCategory.getSelectedItem().toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                //do nothing
+            }
+        });
+
+        //datepicker
+        mDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Calendar c = Calendar.getInstance();
+                int year = c.get(Calendar.YEAR);
+                int month = c.get(Calendar.MONTH) + 1;
+                int day = c.get(Calendar.DAY_OF_MONTH);
+
+                DatePickerDialog date = new DatePickerDialog(
+                        EditExpense.this,
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker datePicker, int year, int month, int dayOfMonth) {
+                                String formattedMonth = "" + month;
+                                String formattedDayOfMonth = "" + dayOfMonth;
+                                if (month < 10) {
+                                    formattedMonth = "0" + month;
+                                }
+                                if (dayOfMonth < 10) {
+                                    formattedDayOfMonth = "0" + dayOfMonth;
+                                }
+                                mDate.setText(year + "-" + formattedMonth + "-" + formattedDayOfMonth);
+                            }
+                        },
+                        year,
+                        month,
+                        day
+                );
+                date.show();
+                selectedDate = mDate.getText().toString();
+            }
+        });
+
+        //fetch passed data from intent
+        Intent intent = getIntent();
+        expenseId = intent.getIntExtra("EXPENSE_ID", 0);
+        int spinnerTypePosition = typeSpinner.getPosition(intent.getStringExtra("EXPENSE_TYPE"));
+        int spinnerCategoryPosition = categorySpinner.getPosition(intent.getStringExtra("EXPENSE_CATEGORY"));
+
+        //setting the existing data
+        mType.setSelection(spinnerTypePosition);
+        mCategory.setSelection(spinnerCategoryPosition);
+        mAmount.setText(intent.getStringExtra("EXPENSE_AMOUNT"));
+        mDate.setText(intent.getStringExtra("EXPENSE_DATE"));
+
+
+        if(amount > 0.0 || !TextUtils.isEmpty(type) ||  !TextUtils.isEmpty(category) || !TextUtils.isEmpty(selectedDate)){
+            mEdit.setEnabled(true);
+        }
+
+
     }
 
     //navigation item selected
@@ -108,19 +240,19 @@ public class EditExpense extends AppCompatActivity implements NavigationView.OnN
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case R.id.menu_home:
-                Intent intentHome = new Intent(this, Home.class);
+                Intent intentHome = new Intent(getApplicationContext(), Home.class);
                 startActivity(intentHome);
                 break;
             case R.id.menu_expense_list:
-                Intent intentExpense = new Intent(this, ExpenseList.class);
+                Intent intentExpense = new Intent(getApplicationContext(), ExpenseList.class);
                 startActivity(intentExpense);
                 break;
             case R.id.menu_add_new:
-                Intent intent = new Intent(this, AddExpense.class);
-                startActivityForResult(intent, REQUEST_ADD);
+                Intent intentAddExpense = new Intent(getApplicationContext(), AddExpense.class);
+                startActivityForResult(intentAddExpense, REQUEST_ADD);
                 break;
             case R.id.menu_trashcan:
-                Intent intentTrashcan = new Intent(this, Trashcan.class);
+                Intent intentTrashcan = new Intent(getApplicationContext(), Trashcan.class);
                 startActivity(intentTrashcan);
                 break;
             case R.id.menu_logout:
@@ -149,26 +281,50 @@ public class EditExpense extends AppCompatActivity implements NavigationView.OnN
 
     @Override
     public void onBackPressed() {
-        if(mActivityEditExpenseBinding.drawerLayout.isDrawerOpen(GravityCompat.START)){ //will only execute if navbar is opening
-            mActivityEditExpenseBinding.drawerLayout.closeDrawer(GravityCompat.START); //close the navigation if pressed back
+        if(mDrawerLayout.isDrawerOpen(GravityCompat.START)){ //will only execute if navbar is opening
+            mDrawerLayout.closeDrawer(GravityCompat.START); //close the navigation if pressed back
         }
         else {
-            super.onBackPressed(); //close the activity instead
+            super.onBackPressed();
         }
     }
 
-    //for options
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.option, menu);
-        return true;
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.clear_all){
-            //function
+    public void edit_onClick(){
+        //enable button if everything filled
+        String fetchAmount = mAmount.getText().toString();
+        if(fetchAmount == null) {
+            amount = 0.0; //change fetched amount from string to double
         }
-        return true;
+        else{
+            amount = Double.parseDouble(fetchAmount); //change fetched amount from string to double
+        }
+
+
+        ExpensesDatabase expensesDatabase = ExpensesDatabase.getInstance(EditExpense.this);
+
+        Expenses newExpense = new Expenses(
+                expenseId,
+                userID,
+                amount,
+                type,
+                category,
+                selectedDate,
+                0
+        );
+
+        try{
+            expensesDatabase.getExpensesDao().update(newExpense);
+            Toast.makeText(EditExpense.this, "Task created successfully!", Toast.LENGTH_SHORT).show();
+
+            Intent mainIntent = new Intent();
+
+            setResult(RESULT_OK, mainIntent);
+            finish();
+        }
+        catch(Error e){
+            Toast.makeText(EditExpense.this, "Task creation error: " + e, Toast.LENGTH_SHORT).show();
+            finishActivity(EDIT_FAIL);
+        }
     }
 
 }

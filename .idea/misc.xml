@@ -4,9 +4,13 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/drawable/ic_add_new.xml" value="0.236" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/drawable/ic_home.xml" value="0.263" />
         <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1" />
         <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/drawable/ic_menu.xml" value="0.1" />
         <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/drawable/ic_option.xml" value="0.1" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/drawable/ic_trashcan.xml" value="0.236" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/drawable/list_item.xml" value="0.236" />
         <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout-land/fragment_crime.xml" value="0.3171875" />
         <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout/activity_add_expense.xml" value="0.3385416666666667" />
         <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout/activity_edit_expense.xml" value="0.3385416666666667" />
@@ -18,6 +22,7 @@
         <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout/activity_register.xml" value="0.3385416666666667" />
         <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout/activity_trashcan.xml" value="0.3385416666666667" />
         <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout/fragment_crime.xml" value="0.3385416666666667" />
+        <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout/list_item.xml" value="0.3385416666666667" />
         <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout/nav_header.xml" value="0.27692307692307694" />
         <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/layout/toolbar.xml" value="0.22" />
         <entry key="..\:/INTI_Homeworks_Degree/SEM4_(7)/A202SGI Android Development Skills/assignment/AndroidExpense/app/src/main/res/menu/drawer_menu.xml" value="0.3375" />

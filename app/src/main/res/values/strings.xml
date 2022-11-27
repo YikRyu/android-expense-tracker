@@ -9,6 +9,7 @@
     <string name="toolbar_add_new">ADD NEW EXPENSE/INCOME</string>
     <string name="toolbar_trashcan">TRASHCAN</string>
     <string name="toolbar_logout">LOGOUT</string>
+    <string name="toolbar_edit">Edit Expense</string>
 
     <!--For Nav Bar Toggle-->
     <string name="navigation_drawer_open">Open Navigation Drawer</string>
@@ -30,22 +31,31 @@
     <string name="home_instruction">Filter expense by Year and Month:</string>
     <string name="home_start">Start: </string>
     <string name="home_end">End: </string>
-    <!--Trashcan-->
+    <string name="search">SEARCH</string>
+    <!--Tips-->
+    <string name="expense_list_tips">Tap onto the item to edit, swipe right to move to trashcan</string>
     <string name="trashcan_tips">Swipe right to delete permanently, swipe left to restore</string>
+    <!--RV items-->
+    <string name="type">Type: </string>
+    <string name="category">Category: </string>
+    <!--expense-->
+    <string name="amount">Amount: </string>
+    <string name="date">Date: </string>
 
+    <!--Expense Types-->
+    <string-array name="expense_type">
+        <item name="expense">Expense</item>
+        <item name="income">Income</item>
+    </string-array>
 
     <!--Expense Categories-->
     <string-array name="expense_categories">
         <item name="income">Income</item>
         <item name="food">Food</item>
-        <item name="medical">Medical/Healthcare</item>
+        <item name="medical">Healthcare</item>
         <item name="entertainment">Entertainment</item>
         <item name="education">Education</item>
-        <item name="household">Household Supplies</item>
         <item name="utilities">Utilities</item>
-        <item name="transportation">Transportation</item>
-        <item name="clothing">Clothing</item>
-        <item name="gifts">Gifts</item>
     </string-array>
 
 </resources>

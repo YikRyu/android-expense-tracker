@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="16dp"
+    android:backgroundTint="@color/pale_blue"
+    app:cardCornerRadius="20dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="5dp">
+
+        <TextView
+            android:id="@+id/tv_type_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:text="@string/type"
+            android:textColor="@color/light_black"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/tv_typeData_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_toEndOf="@+id/tv_type_item"
+            android:text="Expense"
+            android:textColor="@color/light_black"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/tv_category_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_type_item"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:text="@string/category"
+            android:textColor="@color/light_black"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/tv_categoryData_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="7dp"
+            android:layout_toEndOf="@+id/tv_category_item"
+            android:layout_below="@+id/tv_typeData_item"
+            android:text="Food"
+            android:textColor="@color/light_black"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/tv_amount_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:text="100"
+            android:textAlignment="center"
+            android:textAppearance="?android:textAppearance"
+            android:textSize="35dp" />
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>
