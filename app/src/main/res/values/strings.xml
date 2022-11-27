@@ -28,7 +28,7 @@
     <string name="have_account">Already have an account? Login here</string>
     <string name="no_account">Don\'t have an account? Create here</string>
     <!--Home-->
-    <string name="home_instruction">Filter expense by Year and Month:</string>
+    <string name="home_instruction">Filter expense by Date:</string>
     <string name="home_start">Start: </string>
     <string name="home_end">End: </string>
     <string name="search">SEARCH</string>

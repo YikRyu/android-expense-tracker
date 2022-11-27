@@ -220,9 +220,13 @@ public class Trashcan extends AppCompatActivity implements NavigationView.OnNavi
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             ExpensesDatabase expenseDB = ExpensesDatabase.getInstance(Trashcan.this);
-                            List<Expenses> removeTrashed= expenseDB.getExpensesDao().getTrashed(userID);
                             expenseDB.getExpensesDao().deleteAllTrashed(userID);
                             Toast.makeText(Trashcan.this, "All trashed items yeeted to oblivion.", Toast.LENGTH_SHORT).show();
+
+                            List<Expenses> expensesList = expenseDB.getExpensesDao().getTrashed(userID);
+                            mTrashcanAdapter = new TrashcanAdapter(Trashcan.this, expensesList);
+                            mRecyclerView.setAdapter(mTrashcanAdapter);
+                            mRecyclerView.setLayoutManager(new LinearLayoutManager(Trashcan.this));
                             mRecyclerView.getAdapter().notifyDataSetChanged();
                         }
                     }
