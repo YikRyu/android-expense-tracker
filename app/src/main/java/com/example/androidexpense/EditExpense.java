@@ -51,9 +51,7 @@ public class EditExpense extends AppCompatActivity implements NavigationView.OnN
     String category;
     String selectedDate;
     private int expenseId;
-    private boolean setType = false;
-    private boolean setCategory = false;
-    private boolean setDate = false;
+
 
     //xml bindings
     private DrawerLayout mDrawerLayout;
@@ -159,14 +157,15 @@ public class EditExpense extends AppCompatActivity implements NavigationView.OnN
             }
         });
 
+
         //spinner adapter category
-        ArrayAdapter<CharSequence> categorySpinner = ArrayAdapter.createFromResource(
+        ArrayAdapter<CharSequence> categorySpinner;
+        categorySpinner = ArrayAdapter.createFromResource(
                 EditExpense.this,
                 R.array.expense_categories,
                 android.R.layout.simple_spinner_item
         );
-
-        //spinner adapter category
+        //setting category spinner dropdown item
         categorySpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mCategory.setAdapter(categorySpinner);
         mCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -220,18 +219,14 @@ public class EditExpense extends AppCompatActivity implements NavigationView.OnN
         expenseId = intent.getIntExtra("EXPENSE_ID", 0);
         int spinnerTypePosition = typeSpinner.getPosition(intent.getStringExtra("EXPENSE_TYPE"));
         int spinnerCategoryPosition = categorySpinner.getPosition(intent.getStringExtra("EXPENSE_CATEGORY"));
+        String amountText = intent.getStringExtra("EXPENSE_AMOUNT");
+        String dateText = intent.getStringExtra("EXPENSE_DATE");
 
         //setting the existing data
         mType.setSelection(spinnerTypePosition);
         mCategory.setSelection(spinnerCategoryPosition);
-        mAmount.setText(intent.getStringExtra("EXPENSE_AMOUNT"));
-        mDate.setText(intent.getStringExtra("EXPENSE_DATE"));
-
-
-        if(amount > 0.0 || !TextUtils.isEmpty(type) ||  !TextUtils.isEmpty(category) || !TextUtils.isEmpty(selectedDate)){
-            mEdit.setEnabled(true);
-        }
-
+        mAmount.setText(amountText);
+        mDate.setText(dateText);
 
     }
 
@@ -289,17 +284,8 @@ public class EditExpense extends AppCompatActivity implements NavigationView.OnN
         }
     }
 
-    public void edit_onClick(){
-        //enable button if everything filled
-        String fetchAmount = mAmount.getText().toString();
-        if(fetchAmount == null) {
-            amount = 0.0; //change fetched amount from string to double
-        }
-        else{
-            amount = Double.parseDouble(fetchAmount); //change fetched amount from string to double
-        }
-
-
+    public void edit_onClick(View view){
+        amount = Double.parseDouble(mAmount.getText().toString()); //change fetched amount from string to double
         ExpensesDatabase expensesDatabase = ExpensesDatabase.getInstance(EditExpense.this);
 
         Expenses newExpense = new Expenses(
@@ -314,7 +300,7 @@ public class EditExpense extends AppCompatActivity implements NavigationView.OnN
 
         try{
             expensesDatabase.getExpensesDao().update(newExpense);
-            Toast.makeText(EditExpense.this, "Task created successfully!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(EditExpense.this, "Edit success.", Toast.LENGTH_SHORT).show();
 
             Intent mainIntent = new Intent();
 
@@ -322,7 +308,7 @@ public class EditExpense extends AppCompatActivity implements NavigationView.OnN
             finish();
         }
         catch(Error e){
-            Toast.makeText(EditExpense.this, "Task creation error: " + e, Toast.LENGTH_SHORT).show();
+            Toast.makeText(EditExpense.this, "Edit failed, error: " + e, Toast.LENGTH_SHORT).show();
             finishActivity(EDIT_FAIL);
         }
     }

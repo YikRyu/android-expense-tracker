@@ -10,15 +10,26 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.androidexpense.database.Expenses;
+import com.example.androidexpense.database.ExpensesDatabase;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
 public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseViewHolder>{
+    //refer user ID
+    FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
+    String userID = mUser.getUid(); //grabbing uid of current logged in user
+    DatabaseReference mUserInfoDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(userID); //child node to refer from
+
     private Context context;
     private LayoutInflater mInflater;
     private List<Expenses> expenseList;
@@ -74,10 +85,10 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
         holder.itemCat.setText(expenses.getExpenseCategory());
         holder.itemAmount.setText(Double.toString(expenses.getExpenseAmount())); //fetching from a double value
         if(holder.itemType.getText().equals("Income")){ //change text color according to type
-            holder.itemAmount.setTextColor(Color.parseColor(String.valueOf(R.color.green)));
+            holder.itemAmount.setTextColor(Color.parseColor("#27B30B")); //green
         }
         else{
-            holder.itemAmount.setTextColor(Color.parseColor(String.valueOf(R.color.red)));
+            holder.itemAmount.setTextColor(Color.parseColor("#B30B0B")); //red
         }
     }
 
@@ -86,4 +97,13 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
         return expenseList.size();
     }
 
+    public void trashItem(int position){
+        ExpensesDatabase expenseDB = ExpensesDatabase.getInstance(context);
+        Expenses expenses = expenseList.get(position);
+        expenseDB.getExpensesDao().updateTrashed(userID, expenses.getExpenseID());
+
+        expenseList.remove(position);
+        notifyItemRemoved(position); //notify remove
+        Toast.makeText(context, "Item trashed.", Toast.LENGTH_SHORT).show();
+    }
 }

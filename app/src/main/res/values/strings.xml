@@ -48,6 +48,7 @@
         <item name="income">Income</item>
     </string-array>
 
+
     <!--Expense Categories-->
     <string-array name="expense_categories">
         <item name="income">Income</item>

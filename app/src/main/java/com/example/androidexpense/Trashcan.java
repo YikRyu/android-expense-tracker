@@ -121,14 +121,23 @@ public class Trashcan extends AppCompatActivity implements NavigationView.OnNavi
         mTrashcanAdapter = new TrashcanAdapter(this, expensesList);
         mRecyclerView.setAdapter(mTrashcanAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        updateUI();
+
+        ItemTouchHelper helper = new ItemTouchHelper(new TrashcanCallback(mTrashcanAdapter));
+        helper.attachToRecyclerView(mRecyclerView);
 
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        updateUI(); //call function to update the list after going back to this fragment from crime fragment
+
+        ExpensesDatabase expenseDB = ExpensesDatabase.getInstance(Trashcan.this);
+        //display list of expenses with recycler view
+        List<Expenses> expensesList = expenseDB.getExpensesDao().getTrashed(userID);
+        mTrashcanAdapter = new TrashcanAdapter(this, expensesList);
+        mRecyclerView.setAdapter(mTrashcanAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.getAdapter().notifyDataSetChanged();
     }
 
     //navigation item selected
@@ -214,61 +223,12 @@ public class Trashcan extends AppCompatActivity implements NavigationView.OnNavi
                             List<Expenses> removeTrashed= expenseDB.getExpensesDao().getTrashed(userID);
                             expenseDB.getExpensesDao().deleteAllTrashed(userID);
                             Toast.makeText(Trashcan.this, "All trashed items yeeted to oblivion.", Toast.LENGTH_SHORT).show();
-                            updateUI();
+                            mRecyclerView.getAdapter().notifyDataSetChanged();
                         }
                     }
             );
             alert.show();
         }
         return true;
-    }
-
-    private void updateUI(){
-        ExpensesDatabase expenseDB = ExpensesDatabase.getInstance(Trashcan.this);
-        mExpensesList = expenseDB.getExpensesDao().getNotTrashed(userID);
-
-        if(mTrashcanAdapter == null){
-            mTrashcanAdapter = new TrashcanAdapter(this, mExpensesList);
-            mRecyclerView.setAdapter(mTrashcanAdapter);
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        }
-        else{
-            mRecyclerView.getAdapter().notifyDataSetChanged();
-        }
-
-        //item touch helper
-        ItemTouchHelper helper = new ItemTouchHelper((new ItemTouchHelper.SimpleCallback(
-                0, //drag
-                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) { //swipe right
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                //no moving
-                return false;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                Expenses expenses = mExpensesList.get(viewHolder.getAdapterPosition());
-
-                if (direction == 4) {
-                    expenseDB.getExpensesDao().updateNotTrashed(userID, expenses.getExpenseID());
-
-                    //remove it from list
-                    mExpensesList.remove(viewHolder.getAdapterPosition());
-                    Toast.makeText(Trashcan.this, "Item restored.", Toast.LENGTH_SHORT).show();
-                    mTrashcanAdapter.notifyItemRemoved(viewHolder.getAdapterPosition()); //notify remove
-                }
-                else{
-                    expenseDB.getExpensesDao().delete(expenses);
-
-                    //remove it from list
-                    mExpensesList.remove(viewHolder.getAdapterPosition());
-                    Toast.makeText(Trashcan.this, "Item yeeted to oblivion.", Toast.LENGTH_SHORT).show();
-                    mTrashcanAdapter.notifyItemRemoved(viewHolder.getAdapterPosition()); //notify remove
-                }
-            }
-        }));
-
-        helper.attachToRecyclerView(mRecyclerView);
     }
 }

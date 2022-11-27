@@ -171,7 +171,7 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
             @Override
             public void onClick(View view) {
                 setupPieChart();
-                loadPieChartData(userID);
+                loadPieChartData(userID, selectedDate);
             }
         });
 
@@ -252,21 +252,21 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
     }
 
     //animation and pie chart data to load
-    private void loadPieChartData(String userID) {
+    private void loadPieChartData(String userID,String selectedDate) {
         ExpensesDatabase expenseDB = ExpensesDatabase.getInstance(this);
         //data fetching and assigning, need to change data to float type because piechart requirement
         double i= expenseDB.getExpensesDao().getIncome(userID, selectedDate);
-        float income = (float)i;
+        int income = (int)i;
         double f= expenseDB.getExpensesDao().getIncome(userID, selectedDate);
-        float food = (float)f;
+        int food = (int)f;
         double h= expenseDB.getExpensesDao().getIncome(userID, selectedDate);
-        float healthcare = (float)h;
+        int healthcare = (int)h;
         double et= expenseDB.getExpensesDao().getIncome(userID, selectedDate);
-        float entertainment = (float)et;
+        int entertainment = (int)et;
         double edu= expenseDB.getExpensesDao().getIncome(userID, selectedDate);
-        float education = (float)edu;
+        int education = (int)edu;
         double u= expenseDB.getExpensesDao().getIncome(userID, selectedDate);
-        float utilities = (float)u;
+        int utilities = (int)u;
 
         ArrayList<PieEntry> entries = new ArrayList<>();
         entries.add(new PieEntry(income, "Income"));

@@ -121,14 +121,23 @@ public class ExpenseList extends AppCompatActivity implements NavigationView.OnN
         mExpenseAdapter = new ExpenseAdapter(this, expensesList);
         mRecyclerView.setAdapter(mExpenseAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        updateUI();
+
+        ItemTouchHelper helper = new ItemTouchHelper(new ExpenseCallback(mExpenseAdapter));
+        helper.attachToRecyclerView(mRecyclerView);
 
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        updateUI(); //call function to update the list after going back to this fragment from crime fragment
+
+        ExpensesDatabase expenseDB = ExpensesDatabase.getInstance(ExpenseList.this);
+        //display list of expenses with recycler view
+        List<Expenses> expensesList = expenseDB.getExpensesDao().getNotTrashed(userID);
+        mExpenseAdapter = new ExpenseAdapter(this, expensesList);
+        mRecyclerView.setAdapter(mExpenseAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.getAdapter().notifyDataSetChanged();
     }
 
     //navigation item selected
@@ -190,54 +199,14 @@ public class ExpenseList extends AppCompatActivity implements NavigationView.OnN
 
         if(requestCode == REQUEST_ADD || requestCode == REQUEST_EDIT){
             if(resultCode == RESULT_OK){
-                updateUI();
+                ExpensesDatabase expenseDB = ExpensesDatabase.getInstance(ExpenseList.this);
+                List<Expenses> expensesList = expenseDB.getExpensesDao().getNotTrashed(userID);
+                mExpenseAdapter = new ExpenseAdapter(this, expensesList);
+                mRecyclerView.setAdapter(mExpenseAdapter);
+                mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+                mRecyclerView.getAdapter().notifyDataSetChanged();
             }
         }
 
-    }
-
-    //function for UI updating
-    private void updateUI(){
-        ExpensesDatabase expenseDB = ExpensesDatabase.getInstance(ExpenseList.this);
-        mExpensesList = expenseDB.getExpensesDao().getNotTrashed(userID);
-
-        if(mExpenseAdapter == null){
-            mExpenseAdapter = new ExpenseAdapter(this, mExpensesList);
-            mRecyclerView.setAdapter(mExpenseAdapter);
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        }
-        else{
-            mRecyclerView.getAdapter().notifyDataSetChanged();
-        }
-
-        //item touch helper
-        ItemTouchHelper helper = new ItemTouchHelper((new ItemTouchHelper.SimpleCallback(
-                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT | ItemTouchHelper.UP | ItemTouchHelper.DOWN, //drag
-                ItemTouchHelper.RIGHT) { //swipe left and right
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView,
-                                  @NonNull RecyclerView.ViewHolder viewHolder,
-                                  @NonNull RecyclerView.ViewHolder target) {
-                int from = viewHolder.getAdapterPosition();
-                int to = viewHolder.getAdapterPosition();
-                Collections.swap(mExpensesList, from, to);
-                mExpenseAdapter.notifyItemMoved(from, to);
-                return true;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                Expenses expenses = mExpensesList.get(viewHolder.getAdapterPosition());
-                expenseDB.getExpensesDao().updateTrashed(userID ,expenses.getExpenseID());
-
-                //move to trashcan
-                mExpensesList.remove(viewHolder.getAdapterPosition());
-                Toast.makeText(ExpenseList.this, "Expense moved to trash can.", Toast.LENGTH_SHORT).show();
-                mExpenseAdapter.notifyItemRemoved(viewHolder.getAdapterPosition()); //notify
-
-            }
-        }));
-
-        helper.attachToRecyclerView(mRecyclerView);
     }
 }

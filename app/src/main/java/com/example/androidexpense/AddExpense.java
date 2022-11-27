@@ -80,7 +80,6 @@ public class AddExpense extends AppCompatActivity implements NavigationView.OnNa
         mCategory = findViewById(R.id.sp_categoryData_add);
         mDate = findViewById(R.id.tv_datepicker_add);
         mAdd = findViewById(R.id.btn_add);
-        mAdd.setEnabled(false); //disable button if not all field filled
 
         //navigation options selection listener
         mNavigationView.setNavigationItemSelectedListener(this); //function is somewhere else
@@ -149,6 +148,7 @@ public class AddExpense extends AppCompatActivity implements NavigationView.OnNa
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 type = mType.getSelectedItem().toString();
+                setType = true;
             }
 
             @Override
@@ -158,12 +158,13 @@ public class AddExpense extends AppCompatActivity implements NavigationView.OnNa
         });
 
         //spinner adapter category
-        ArrayAdapter<CharSequence> categorySpinner = ArrayAdapter.createFromResource(
+        ArrayAdapter<CharSequence> categorySpinner;
+        categorySpinner = ArrayAdapter.createFromResource(
                 AddExpense.this,
                 R.array.expense_categories,
                 android.R.layout.simple_spinner_item
         );
-
+        //setting category spinner dropdown item
         categorySpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mCategory.setAdapter(categorySpinner);
         mCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -177,6 +178,8 @@ public class AddExpense extends AppCompatActivity implements NavigationView.OnNa
                 //do nothing
             }
         });
+
+
 
         //datepicker
         mDate.setOnClickListener(new View.OnClickListener() {
@@ -209,6 +212,7 @@ public class AddExpense extends AppCompatActivity implements NavigationView.OnNa
                 );
                 date.show();
                 selectedDate = mDate.getText().toString();
+                setDate = true;
             }
         });
 
@@ -268,38 +272,47 @@ public class AddExpense extends AppCompatActivity implements NavigationView.OnNa
     }
 
     public void add_onClick(View view) {
-        //enable button if everything filled
-        String fetchAmount = mAmount.getText().toString();
-        if(fetchAmount == null) {
-            amount = 0.0; //change fetched amount from string to double
+        if(mAmount.getText().toString()!= null && !mDate.getText().toString().equals("Expense Date")){
+            amount = Double.parseDouble(mAmount.getText().toString()); //change fetched amount from string to double
+
+            ExpensesDatabase expensesDatabase = ExpensesDatabase.getInstance(AddExpense.this);
+
+            Expenses newExpense = new Expenses(
+                    userID,
+                    amount,
+                    type,
+                    category,
+                    selectedDate,
+                    0
+            );
+
+            try{
+                expensesDatabase.getExpensesDao().insert(newExpense);
+                Toast.makeText(AddExpense.this, "Expense created successfully.", Toast.LENGTH_SHORT).show();
+
+                Intent mainIntent = new Intent();
+
+                setResult(RESULT_OK, mainIntent);
+                finish();
+            }
+            catch(Error e){
+                Toast.makeText(AddExpense.this, "Expense creation error: " + e, Toast.LENGTH_SHORT).show();
+                finishActivity(NEW_TASK_FAIL);
+            }
         }
         else{
-            amount = Double.parseDouble(fetchAmount); //change fetched amount from string to double
+            //appear dialog if one of the data is empty
+            AlertDialog.Builder builder=new AlertDialog.Builder(AddExpense.this);
+            builder.setTitle("Unable to add");
+            builder.setMessage("Please fill all the fields!");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() { //if sure
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            builder.show();
         }
 
-        ExpensesDatabase expensesDatabase = ExpensesDatabase.getInstance(AddExpense.this);
-
-        Expenses newExpense = new Expenses(
-                userID,
-                amount,
-                type,
-                category,
-                selectedDate,
-                0
-        );
-
-        try{
-            expensesDatabase.getExpensesDao().insert(newExpense);
-            Toast.makeText(AddExpense.this, "Task created successfully!", Toast.LENGTH_SHORT).show();
-
-            Intent mainIntent = new Intent();
-
-            setResult(RESULT_OK, mainIntent);
-            finish();
-        }
-        catch(Error e){
-            Toast.makeText(AddExpense.this, "Task creation error: " + e, Toast.LENGTH_SHORT).show();
-            finishActivity(NEW_TASK_FAIL);
-        }
     }
 }
