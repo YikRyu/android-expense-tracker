@@ -195,7 +195,7 @@ public class AddExpense extends AppCompatActivity implements NavigationView.OnNa
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker datePicker, int year, int month, int dayOfMonth) {
-                                String formattedMonth = "" + month;
+                                String formattedMonth = "" + month+1;
                                 String formattedDayOfMonth = "" + dayOfMonth;
                                 if (month < 10) {
                                     formattedMonth = "0" + month;
